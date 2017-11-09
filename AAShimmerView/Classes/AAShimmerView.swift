@@ -12,6 +12,7 @@ class AAShimmerView: UIView, CAAnimationDelegate {
     private var rootView:UIView!
     private var gradientLayer:CAGradientLayer!
     private var constraintsList:[NSLayoutConstraint] =  []
+    private var shouldAnimate: Bool = false
     
     //MARK:- Initalization
     
@@ -117,6 +118,8 @@ class AAShimmerView: UIView, CAAnimationDelegate {
         animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
         animation.delegate = self
         layer.add(animation, forKey: "animateGradient")
+        
+        self.shouldAnimate = true
     }
     
     /// Shifting the last element in the array to the first index
@@ -131,6 +134,10 @@ class AAShimmerView: UIView, CAAnimationDelegate {
     }
     
     internal func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        guard shouldAnimate else {
+            return
+        }
+        
         startAnimating()
     }
     
@@ -151,6 +158,9 @@ class AAShimmerView: UIView, CAAnimationDelegate {
     }
     
     public func stop() {
+        self.shouldAnimate = false
+        
+        self.layer.removeAllAnimations()
         rootView.aaShimmerSubViews?.forEach{$0.alpha = $0.aaShimmerViewAlpha}
         NotificationCenter.default.removeObserver(self)
         self.removeFromSuperview()
